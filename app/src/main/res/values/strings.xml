@@ -1,0 +1,5 @@
+<resources>
+    <!--<string name="app_name">CleanApp</string>-->
+    <string name="has_issues">Has Issues</string>
+    <string name="refresh">Refresh</string>
+</resources>
