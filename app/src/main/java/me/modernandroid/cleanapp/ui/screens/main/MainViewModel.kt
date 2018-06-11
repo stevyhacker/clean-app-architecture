@@ -4,9 +4,12 @@ import android.app.Application
 import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
 import android.databinding.ObservableField
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.observers.DisposableObserver
+import io.reactivex.schedulers.Schedulers
 import me.modernandroid.cleanapp.models.Repository
 import me.modernandroid.cleanapp.repository.GitRepoRepository
-import me.modernandroid.cleanapp.repository.OnRepositoryReadyCallback
 import me.modernandroid.cleanapp.util.NetManager
 
 class MainViewModel(application: Application) : AndroidViewModel(application) {
@@ -17,15 +20,34 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
     val text = ObservableField<String>("old data")
     var repositories = MutableLiveData<ArrayList<Repository>>()
     val isLoading = ObservableField<Boolean>(false)
+    private val compositeDisposable = CompositeDisposable()
 
     fun loadRepositories() {
         isLoading.set(true)
-        gitRepoRepository.getRepositories(object : OnRepositoryReadyCallback {
-            override fun onDataReady(data: ArrayList<Repository>) {
-                isLoading.set(false)
+        compositeDisposable.add(gitRepoRepository
+                .getRepositories()
+                .subscribeOn(Schedulers.newThread())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(object : DisposableObserver<ArrayList<Repository>>() {
+
+            override fun onError(e: Throwable) {
+                //todo
+            }
+
+            override fun onNext(data: ArrayList<Repository>) {
                 repositories.value = data
             }
-        })
+
+            override fun onComplete() {
+                isLoading.set(false)
+            }
+        }))
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        if (!compositeDisposable.isDisposed) {
+            compositeDisposable.dispose()
+        }
+    }
 }
