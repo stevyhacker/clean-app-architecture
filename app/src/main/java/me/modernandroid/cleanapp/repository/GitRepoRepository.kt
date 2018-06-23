@@ -3,8 +3,9 @@ package me.modernandroid.cleanapp.repository
 import io.reactivex.Observable
 import me.modernandroid.cleanapp.models.Repository
 import me.modernandroid.cleanapp.util.NetManager
+import javax.inject.Inject
 
-class GitRepoRepository(val netManager: NetManager) {
+class GitRepoRepository @Inject constructor(val netManager: NetManager) {
 
     val localDataSource = GitRepoLocalDataSource()
     val remoteDataSource = GitRepoRemoteDataSource()

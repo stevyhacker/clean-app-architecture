@@ -4,14 +4,15 @@ import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
 import android.databinding.DataBindingUtil
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
+import dagger.android.support.DaggerAppCompatActivity
 import me.modernandroid.cleanapp.R
 import me.modernandroid.cleanapp.databinding.ActivityMainBinding
 import me.modernandroid.cleanapp.models.Repository
 import me.modernandroid.cleanapp.ui.adapters.RepositoryRecyclerViewAdapter
+import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), RepositoryRecyclerViewAdapter.OnItemClickListener {
+class MainActivity : DaggerAppCompatActivity(), RepositoryRecyclerViewAdapter.OnItemClickListener {
 
     override fun onItemClick(position: Int) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
@@ -20,6 +21,8 @@ class MainActivity : AppCompatActivity(), RepositoryRecyclerViewAdapter.OnItemCl
     lateinit var binding: ActivityMainBinding
     private val repositoryRecyclerViewAdapter = RepositoryRecyclerViewAdapter(arrayListOf(), this)
 
+    @Inject
+    lateinit var mainViewModelFactory: MainViewModelFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +36,8 @@ class MainActivity : AppCompatActivity(), RepositoryRecyclerViewAdapter.OnItemCl
         var repository = Repository("Test Constructor name",
                 "Fleka", 1000, true)
 //        repository.repositoryName = "Test Set name"
-        val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
+        val viewModel = ViewModelProviders.of(this, mainViewModelFactory)
+                .get(MainViewModel::class.java)
         binding.viewModel = viewModel
         binding.executePendingBindings()
 

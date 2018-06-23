@@ -1,8 +1,7 @@
 package me.modernandroid.cleanapp.ui.screens.main
 
-import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.arch.lifecycle.MutableLiveData
+import android.arch.lifecycle.ViewModel
 import android.databinding.ObservableField
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
@@ -10,12 +9,8 @@ import io.reactivex.observers.DisposableObserver
 import io.reactivex.schedulers.Schedulers
 import me.modernandroid.cleanapp.models.Repository
 import me.modernandroid.cleanapp.repository.GitRepoRepository
-import me.modernandroid.cleanapp.util.NetManager
 
-class MainViewModel(application: Application) : AndroidViewModel(application) {
-
-
-    var gitRepoRepository: GitRepoRepository = GitRepoRepository(NetManager(getApplication()))
+class MainViewModel(private var gitRepoRepository: GitRepoRepository) : ViewModel() {
 
     val text = ObservableField<String>("old data")
     var repositories = MutableLiveData<ArrayList<Repository>>()
@@ -30,18 +25,18 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(object : DisposableObserver<ArrayList<Repository>>() {
 
-            override fun onError(e: Throwable) {
-                //todo
-            }
+                    override fun onError(e: Throwable) {
+                        //todo
+                    }
 
-            override fun onNext(data: ArrayList<Repository>) {
-                repositories.value = data
-            }
+                    override fun onNext(data: ArrayList<Repository>) {
+                        repositories.value = data
+                    }
 
-            override fun onComplete() {
-                isLoading.set(false)
-            }
-        }))
+                    override fun onComplete() {
+                        isLoading.set(false)
+                    }
+                }))
     }
 
     override fun onCleared() {
